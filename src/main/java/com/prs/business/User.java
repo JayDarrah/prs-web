@@ -32,7 +32,7 @@ public class User {
 		this.lastName = lastName;
 		this.phoneNumber = phoneNumber;
 		this.email = email;
-		isReviewer = isReviewer;
+		this.isReviewer = isReviewer;
 	}
 	
 	
@@ -110,7 +110,7 @@ public class User {
 	}
 
 	public void setisReviewer(boolean isReviewer) {
-		isReviewer = isReviewer;
+		this.isReviewer = isReviewer;
 	}
 	
 	

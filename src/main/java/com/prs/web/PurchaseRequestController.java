@@ -11,6 +11,7 @@ import com.prs.business.PurchaseRequest;
 import com.prs.business.User;
 import com.prs.db.PurchaseRequestRepository;
 
+@CrossOrigin
 @RestController
 @RequestMapping("/purchase-requests")
 public class PurchaseRequestController {
@@ -66,7 +67,8 @@ public class PurchaseRequestController {
 	public JsonResponse requestReview(@RequestBody User reviewer) {
 		JsonResponse jr = null;
 		try {
-			Optional<PurchaseRequest> u = purchaseRequestRepo.findByStatusAndNotUser("Review",reviewer);
+			Optional<PurchaseRequest> u = purchaseRequestRepo.findByStatusAndUserNot("Review",reviewer);
+//			Optional<PurchaseRequest> u = purchaseRequestRepo.findByStatus("Review");
 			if (u.isPresent())
 				jr = JsonResponse.getInstance(u);
 			else
@@ -78,12 +80,11 @@ public class PurchaseRequestController {
 	}
 	
 	@PostMapping("/submit-new")
-	public JsonResponse add(@RequestBody User u) {
+	public JsonResponse add(@RequestBody PurchaseRequest pr) {
 		JsonResponse jr = null;
-		PurchaseRequest pr = new PurchaseRequest();
 		pr.setStatus("New");
 		pr.setSubmittedDate(LocalDateTime.now());
-		pr.setUser(u);
+		pr.setUser(pr.getUser());
 		// NOTE: May need to enchance exception handling if more than one exception type needs to be caught
 		try {
 			jr = JsonResponse.getInstance(purchaseRequestRepo.save(pr));
@@ -95,19 +96,19 @@ public class PurchaseRequestController {
 		
 	}
 
-	@PostMapping("/submit-review")
-	public JsonResponse submitForReview(@RequestBody PurchaseRequest u) {
+	@PutMapping("/submit-review")
+	public JsonResponse submitForReview(@RequestBody PurchaseRequest pr) {
 		JsonResponse jr = null;
-		if (u.getTotal() <= 50.0) {
-			u.setStatus("Approved");
+		if (pr.getTotal() <= 50.0) {
+			pr.setStatus("Approved");
 		} else {
-			u.setStatus("Review");
+			pr.setStatus("Review");
 		}
-		u.setSubmittedDate(LocalDateTime.now());
+		pr.setSubmittedDate(LocalDateTime.now());
 		
 		// NOTE: May need to enchance exception handling if more than one exception type needs to be caught
 		try {
-			jr = JsonResponse.getInstance(purchaseRequestRepo.save(u));
+			jr = JsonResponse.getInstance(purchaseRequestRepo.save(pr));
 			
 		} catch (Exception e) {
 			jr = JsonResponse.getInstance(e);
@@ -117,14 +118,14 @@ public class PurchaseRequestController {
 	}
 
 	@PutMapping("")
-	public JsonResponse update(@RequestBody PurchaseRequest u) {
+	public JsonResponse update(@RequestBody PurchaseRequest pr) {
 		JsonResponse jr = null;
 		// NOTE: May need to enchance exception handling if more than one exception type needs to be caught
 		try {
-			if (purchaseRequestRepo.existsById(u.getId())) {
-				jr = JsonResponse.getInstance(purchaseRequestRepo.save(u));
+			if (purchaseRequestRepo.existsById(pr.getId())) {
+				jr = JsonResponse.getInstance(purchaseRequestRepo.save(pr));
 			} else {
-				jr = JsonResponse.getInstance("PurchaseRequest id: "+u.getId()+" does not exist and you are attempting to save it.");
+				jr = JsonResponse.getInstance("PurchaseRequest id: "+pr.getId()+" does not exist and you are attempting to save it.");
 			}
 		} catch (Exception e) {
 			
@@ -135,14 +136,14 @@ public class PurchaseRequestController {
 	}
 
 	@PutMapping("/approve")
-	public JsonResponse approve(@RequestBody PurchaseRequest u) {
+	public JsonResponse approve(@RequestBody PurchaseRequest pr) {
 		JsonResponse jr = null;
 		try {
-			if (purchaseRequestRepo.existsById(u.getId())) {
-				u.setStatus("Approved");
-				jr = JsonResponse.getInstance(purchaseRequestRepo.save(u));
+			if (purchaseRequestRepo.existsById(pr.getId())) {
+				pr.setStatus("Approved");
+				jr = JsonResponse.getInstance(purchaseRequestRepo.save(pr));
 			} else {
-				jr = JsonResponse.getInstance("PurchaseRequest id: "+u.getId()+" does not exist and you are attempting to approve it.");
+				jr = JsonResponse.getInstance("PurchaseRequest id: "+pr.getId()+" does not exist and you are attempting to approve it.");
 			}
 		} catch (Exception e) {
 			jr = JsonResponse.getInstance(e);
@@ -151,14 +152,14 @@ public class PurchaseRequestController {
 	}
 
 	@PutMapping("/reject")
-	public JsonResponse reject(@RequestBody PurchaseRequest u) {
+	public JsonResponse reject(@RequestBody PurchaseRequest pr) {
 		JsonResponse jr = null;
 		try {
-			if (purchaseRequestRepo.existsById(u.getId())) {
-				u.setStatus("Rejected");
-				jr = JsonResponse.getInstance(purchaseRequestRepo.save(u));
+			if (purchaseRequestRepo.existsById(pr.getId())) {
+				pr.setStatus("Rejected");
+				jr = JsonResponse.getInstance(purchaseRequestRepo.save(pr));
 			} else {
-				jr = JsonResponse.getInstance("PurchaseRequest id: "+u.getId()+" does not exist and you are attempting to reject it.");
+				jr = JsonResponse.getInstance("PurchaseRequest id: "+pr.getId()+" does not exist and you are attempting to reject it.");
 			}
 		} catch (Exception e) {
 			jr = JsonResponse.getInstance(e);

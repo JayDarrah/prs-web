@@ -9,8 +9,9 @@ import com.prs.business.JsonResponse;
 import com.prs.business.Product;
 import com.prs.db.ProductRepository;
 
+@CrossOrigin
 @RestController
-@RequestMapping("/Products")
+@RequestMapping("/products")
 public class ProductController {
 	
 	@Autowired
@@ -48,9 +49,9 @@ public class ProductController {
 	public JsonResponse getByPartNumber(@RequestParam String partNumber) {
 		JsonResponse jr = null;
 		try {
-			Optional<Product> u = productRepo.findByPartNumber(partNumber);
-			if (u.isPresent())
-				jr = JsonResponse.getInstance(u);
+			Optional<Product> p = productRepo.findByPartNumber(partNumber);
+			if (p.isPresent())
+				jr = JsonResponse.getInstance(p);
 			else
 				jr = JsonResponse.getInstance("No product found for part number: "+partNumber);
 				
@@ -61,11 +62,11 @@ public class ProductController {
 	}
 	
 	@PostMapping("/")
-	public JsonResponse add(@RequestBody Product u) {
+	public JsonResponse add(@RequestBody Product p) {
 		JsonResponse jr = null;
 		// NOTE: May need to enchance exception handling if more than one exception type needs to be caught
 		try {
-			jr = JsonResponse.getInstance(productRepo.save(u));
+			jr = JsonResponse.getInstance(productRepo.save(p));
 			
 		} catch (Exception e) {
 			jr = JsonResponse.getInstance(e);
@@ -75,14 +76,14 @@ public class ProductController {
 	}
 
 	@PutMapping("/")
-	public JsonResponse update(@RequestBody Product u) {
+	public JsonResponse update(@RequestBody Product p) {
 		JsonResponse jr = null;
 		// NOTE: May need to enchance exception handling if more than one exception type needs to be caught
 		try {
-			if (productRepo.existsById(u.getId())) {
-				jr = JsonResponse.getInstance(productRepo.save(u));
+			if (productRepo.existsById(p.getId())) {
+				jr = JsonResponse.getInstance(productRepo.save(p));
 			} else {
-				jr = JsonResponse.getInstance("Product id: "+u.getId()+" does not exist and you are attempting to save it.");
+				jr = JsonResponse.getInstance("Product id: "+p.getId()+" does not exist and you are attempting to save it.");
 			}
 		} catch (Exception e) {
 			
@@ -93,15 +94,15 @@ public class ProductController {
 	}
 
 	@DeleteMapping("/")
-	public JsonResponse delete(@RequestBody Product u) {
+	public JsonResponse delete(@RequestBody Product p) {
 		JsonResponse jr = null;
 		// NOTE: May need to enchance exception handling if more than one exception type needs to be caught
 		try {
-			if (productRepo.existsById(u.getId())) {
-				productRepo.delete(u);
+			if (productRepo.existsById(p.getId())) {
+				productRepo.delete(p);
 				jr = JsonResponse.getInstance("Product deleted.");
 			} else {
-				jr = JsonResponse.getInstance("Product id: "+u.getId()+" does not exist and you are attempting to delete it.");
+				jr = JsonResponse.getInstance("Product id: "+p.getId()+" does not exist and you are attempting to delete it.");
 			}
 		} catch (Exception e) {
 			jr = JsonResponse.getInstance(e);

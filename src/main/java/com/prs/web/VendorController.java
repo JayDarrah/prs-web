@@ -9,8 +9,9 @@ import com.prs.business.JsonResponse;
 import com.prs.business.Vendor;
 import com.prs.db.VendorRepository;
 
+@CrossOrigin
 @RestController
-@RequestMapping("/Vendors")
+@RequestMapping("/vendors")
 public class VendorController {
 	
 	@Autowired
@@ -32,9 +33,9 @@ public class VendorController {
 	public JsonResponse get(@PathVariable int id) {
 		JsonResponse jr = null;
 		try {
-			Optional<Vendor> u = vendorRepo.findById(id);
-			if (u.isPresent())
-				jr = JsonResponse.getInstance(u);
+			Optional<Vendor> v = vendorRepo.findById(id);
+			if (v.isPresent())
+				jr = JsonResponse.getInstance(v);
 			else
 				jr = JsonResponse.getInstance("No vendor found for id: "+id);
 				
@@ -48,9 +49,9 @@ public class VendorController {
 	public JsonResponse getByCode(@RequestParam String code) {
 		JsonResponse jr = null;
 		try {
-			Optional<Vendor> u = vendorRepo.findByCode(code);
-			if (u.isPresent())
-				jr = JsonResponse.getInstance(u);
+			Optional<Vendor> v = vendorRepo.findByCode(code);
+			if (v.isPresent())
+				jr = JsonResponse.getInstance(v);
 			else
 				jr = JsonResponse.getInstance("No product found for code: "+code);
 				
@@ -61,11 +62,11 @@ public class VendorController {
 	}
 	
 	@PostMapping("/")
-	public JsonResponse add(@RequestBody Vendor u) {
+	public JsonResponse add(@RequestBody Vendor v) {
 		JsonResponse jr = null;
 		// NOTE: May need to enchance exception handling if more than one exception type needs to be caught
 		try {
-			jr = JsonResponse.getInstance(vendorRepo.save(u));
+			jr = JsonResponse.getInstance(vendorRepo.save(v));
 			
 		} catch (Exception e) {
 			jr = JsonResponse.getInstance(e);
@@ -75,14 +76,14 @@ public class VendorController {
 	}
 
 	@PutMapping("/")
-	public JsonResponse update(@RequestBody Vendor u) {
+	public JsonResponse update(@RequestBody Vendor v) {
 		JsonResponse jr = null;
 		// NOTE: May need to enchance exception handling if more than one exception type needs to be caught
 		try {
-			if (vendorRepo.existsById(u.getId())) {
-				jr = JsonResponse.getInstance(vendorRepo.save(u));
+			if (vendorRepo.existsById(v.getId())) {
+				jr = JsonResponse.getInstance(vendorRepo.save(v));
 			} else {
-				jr = JsonResponse.getInstance("Vendor id: "+u.getId()+" does not exist and you are attempting to save it.");
+				jr = JsonResponse.getInstance("Vendor id: "+v.getId()+" does not exist and you are attempting to save it.");
 			}
 		} catch (Exception e) {
 			
@@ -93,15 +94,15 @@ public class VendorController {
 	}
 
 	@DeleteMapping("/")
-	public JsonResponse delete(@RequestBody Vendor u) {
+	public JsonResponse delete(@RequestBody Vendor v) {
 		JsonResponse jr = null;
 		// NOTE: May need to enchance exception handling if more than one exception type needs to be caught
 		try {
-			if (vendorRepo.existsById(u.getId())) {
-				vendorRepo.delete(u);
+			if (vendorRepo.existsById(v.getId())) {
+				vendorRepo.delete(v);
 				jr = JsonResponse.getInstance("Product deleted.");
 			} else {
-				jr = JsonResponse.getInstance("Product id: "+u.getId()+" does not exist and you are attempting to delete it.");
+				jr = JsonResponse.getInstance("Product id: "+v.getId()+" does not exist and you are attempting to delete it.");
 			}
 		} catch (Exception e) {
 			jr = JsonResponse.getInstance(e);

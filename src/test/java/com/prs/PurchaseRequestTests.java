@@ -2,6 +2,7 @@ package com.prs;
 
 import static org.junit.Assert.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import org.junit.Before;
@@ -39,7 +40,7 @@ public class PurchaseRequestTests {
 		Iterable<User> users = userRepo.findAll();
 		User u = users.iterator().next();
 // Add a purchaseRequest
-		PurchaseRequest v= new PurchaseRequest(u, "PR Description", "justimafication",LocalDateTime.now(),"ground","active",49.49,LocalDateTime.now(),"bad");
+		PurchaseRequest v = new PurchaseRequest(u, "PR Description", "justimafication",LocalDate.now(),"ground","active",49.49,LocalDateTime.now(),"bad");
 		assertNotNull(purchaseRequestRepo.save(v));
 		assertEquals("justimafication", v.getJustification());
 // Test Update

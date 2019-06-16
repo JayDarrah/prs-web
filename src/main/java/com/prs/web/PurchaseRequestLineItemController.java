@@ -10,6 +10,7 @@ import com.prs.business.PurchaseRequest;
 import com.prs.business.PurchaseRequestLineItem;
 import com.prs.db.PurchaseRequestLineItemRepository;
 
+@CrossOrigin
 @RestController
 @RequestMapping("/purchase-request-line-items")
 public class PurchaseRequestLineItemController {
@@ -33,9 +34,9 @@ public class PurchaseRequestLineItemController {
 	public JsonResponse get(@PathVariable int id) {
 		JsonResponse jr = null;
 		try {
-			Optional<PurchaseRequestLineItem> u = purchaseRequestLineItemRepo.findById(id);
-			if (u.isPresent())
-				jr = JsonResponse.getInstance(u);
+			Optional<PurchaseRequestLineItem> prli = purchaseRequestLineItemRepo.findById(id);
+			if (prli.isPresent())
+				jr = JsonResponse.getInstance(prli);
 			else
 				jr = JsonResponse.getInstance("No purchaseRequestLineItem found for id: "+id);
 				
@@ -49,9 +50,9 @@ public class PurchaseRequestLineItemController {
 	public JsonResponse getByPurchaseRequest(@RequestParam int purchaseRequest) {
 		JsonResponse jr = null;
 		try {
-			Optional<PurchaseRequestLineItem> u = purchaseRequestLineItemRepo.findByPurchaseRequest(purchaseRequest);
-			if (u.isPresent())
-				jr = JsonResponse.getInstance(u);
+			Optional<PurchaseRequestLineItem> prli = purchaseRequestLineItemRepo.findByPurchaseRequest(purchaseRequest);
+			if (prli.isPresent())
+				jr = JsonResponse.getInstance(prli);
 			else
 				jr = JsonResponse.getInstance("No purchaseRequestLineItem found for purchase request: "+purchaseRequest);
 				
@@ -62,36 +63,37 @@ public class PurchaseRequestLineItemController {
 	}
 	
 	@PostMapping("")
-	public JsonResponse add(@RequestBody PurchaseRequestLineItem u) {
+	public JsonResponse add(@RequestBody PurchaseRequestLineItem prli) {
 		JsonResponse jr = null;
 		// NOTE: May need to enchance exception handling if more than one exception type needs to be caught
 		try {
-			jr = JsonResponse.getInstance(purchaseRequestLineItemRepo.save(u));
+			updatePurchaseRequestTotal(prli.getPurchaseRequest());
+
+			jr = JsonResponse.getInstance(purchaseRequestLineItemRepo.save(prli));
 			
 		} catch (Exception e) {
 			jr = JsonResponse.getInstance(e);
 		}
 
-		updatePurchaseRequestTotal(u.getPurchaseRequest());
 		
 		return jr;
 		
 	}
 
 	@PutMapping("")
-	public JsonResponse change(@RequestBody PurchaseRequestLineItem u) {
+	public JsonResponse change(@RequestBody PurchaseRequestLineItem prli) {
 		JsonResponse jr = null;
 		// NOTE: May need to enchance exception handling if more than one exception type needs to be caught
 		try {
-			if (purchaseRequestLineItemRepo.existsById(u.getId())) {
-				if (u.getQuantity() == 0) {
-					purchaseRequestLineItemRepo.delete(u);
+			if (purchaseRequestLineItemRepo.existsById(prli.getId())) {
+				if (prli.getQuantity() == 0) {
+					purchaseRequestLineItemRepo.delete(prli);
 				} else {
-					jr = JsonResponse.getInstance(purchaseRequestLineItemRepo.save(u));
-					updatePurchaseRequestTotal(u.getPurchaseRequest());
+					updatePurchaseRequestTotal(prli.getPurchaseRequest());
+					jr = JsonResponse.getInstance(purchaseRequestLineItemRepo.save(prli));
 				}
 			} else {
-				jr = JsonResponse.getInstance("PurchaseRequestLineItem id: "+u.getId()+" does not exist and you are attempting to save it.");
+				jr = JsonResponse.getInstance("PurchaseRequestLineItem id: "+prli.getId()+" does not exist and you are attempting to save it.");
 			}
 		} catch (Exception e) {
 			
@@ -103,17 +105,19 @@ public class PurchaseRequestLineItemController {
 	}
 
 	@DeleteMapping("")
-	public JsonResponse remove(@RequestBody PurchaseRequestLineItem u) {
+	public JsonResponse remove(@RequestBody PurchaseRequestLineItem prli) {
 		JsonResponse jr = null;
 		// NOTE: May need to enchance exception handling if more than one exception type needs to be caught
 		try {
-			if (purchaseRequestLineItemRepo.existsById(u.getId())) {
-				purchaseRequestLineItemRepo.delete(u);
-				updatePurchaseRequestTotal(u.getPurchaseRequest());
+			if (purchaseRequestLineItemRepo.existsById(prli.getId())) {
+				purchaseRequestLineItemRepo.delete(prli);
+				updatePurchaseRequestTotal(prli.getPurchaseRequest());
+//				jr = JsonResponse.getInstance(purchaseRequestLineItemRepo.save(prli));
+
 
 				jr = JsonResponse.getInstance("PurchaseRequestLineItem deleted.");
 			} else {
-				jr = JsonResponse.getInstance("PurchaseRequestLineItem id: "+u.getId()+" does not exist and you are attempting to delete it.");
+				jr = JsonResponse.getInstance("PurchaseRequestLineItem id: "+prli.getId()+" does not exist and you are attempting to delete it.");
 			}
 		} catch (Exception e) {
 			jr = JsonResponse.getInstance(e);
@@ -128,11 +132,12 @@ public class PurchaseRequestLineItemController {
 		for (PurchaseRequestLineItem x: prli) {
 			System.out.println(x);
 			tempTotal+=(x.getProduct().getPrice()*x.getQuantity());
+			// add to pr total
+			System.out.println(x.getPurchaseRequest().getTotal()+" b4");
+			x.getPurchaseRequest().setTotal(tempTotal);
+			System.out.println(x.getPurchaseRequest().getTotal());
 		}
-		// add to pr total
-		pr.setTotal(tempTotal);
-		System.out.println(pr.getTotal());
-		
+
 	}
     
 }

@@ -13,13 +13,11 @@ public interface PurchaseRequestRepository extends CrudRepository<PurchaseReques
 
 	Optional<PurchaseRequest> findByUser(User user);
 
-//	Iterable<PurchaseRequest> findAllByStatus(String string);
-
 	Optional<PurchaseRequest> findByStatus(String string);
 
-//	boolean findByNotUser(User reviewer);
+	Optional<PurchaseRequest> findByStatusAndUserNot(String string, User reviewer);
 
-	Optional<PurchaseRequest> findByStatusAndNotUser(String string, User reviewer);
+
 
 
 }
